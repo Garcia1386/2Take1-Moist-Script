@@ -4091,6 +4091,7 @@ end
 local SessionHost = nil
 local ScriptHost = nil
 local loopFeat = menu.add_feature("Loop", "toggle", 0, function(feat)
+<<<<<<< Updated upstream
 	if feat.on then
 		local Online = network.is_session_started()
 		if not Online then
@@ -4188,6 +4189,113 @@ local loopFeat = menu.add_feature("Loop", "toggle", 0, function(feat)
 				end
 				return HANDLER_POP
 end)
+=======
+                                  if feat.on then
+                                  	local Online = network.is_session_started()
+                                  	if not Online then
+                                  		SessionHost = nil
+                                  		ScriptHost = nil
+                                  		loop_logsent = false
+                                  	end
+                                  	local lpid = player.player_id()
+                                  	for pid=0,31 do
+                                  		local tbl = playerFeatures[pid]
+                                  		local f = tbl.feat
+                                  		local scid = player.get_player_scid(pid)
+                                  		if scid ~= 4294967295 then
+                                  			if f.hidden then f.hidden = false end
+                                  			local name = player.get_player_name(pid)
+                                  			local isYou = lpid == pid
+                                  			local tags = {}
+                                  			if Online then
+                                  				if isYou then
+                                  					tags[#tags + 1] = "Y"
+                                  				end
+                                  				if player.is_player_friend(pid) then
+                                  					tags[#tags + 1] = "F"
+                                  				end
+                                  				if player.is_player_vehicle_god(pid) then
+                                  					tags[#tags + 1] = ".VG."
+                                  					if not logsent then
+                                  						debug_out(string.format("Player: " ..name .." [Vehicle Godmode]"))
+                                  						logsent = true
+                                  					end
+                                  				end
+                                  				if player.is_player_god(pid) then
+                                  					tags[#tags + 1] = "G"
+                                  				end
+                                  				if  not player.is_player_modder(pid, -1) then
+                                  					if player.is_player_spectating(pid) and player.is_player_playing(pid) and interior.get_interior_from_entity(player.get_player_ped(pid)) == 0 then
+                                  						tags[#tags + 1] = ".SPEC."
+                                  						player.set_player_as_modder(pid, mod_flag_3)
+                                  					end
+                                  				end
+                                  				if player.is_player_modder(pid, -1) then
+                                  					tags[#tags + 1] = "M"
+                                  				end
+                                  				if player.is_player_host(pid) then
+                                  					tags[#tags + 1] = "H"
+                                  					if SessionHost ~= pid then
+                                  						SessionHost = pid
+                                  						notify_above_map("The session host is now " .. (isYou and " you " or name) .. "  ")
+                                  						debug_out(string.format("Session Host is Now : " .. (isYou and " you " or name)))
+                                  					end
+                                  				end
+                                  				if pid == script.get_host_of_this_script() then
+                                  					tags[#tags + 1] = "S"
+                                  					if ScriptHost ~= pid then
+                                  						ScriptHost = pid
+                                  						notify_above_map("The script host is now " .. (isYou and " you " or name) .. "  ")
+                                  						debug_out(string.format("Script Host is Now : " .. (isYou and " you " or name)))
+                                  					end
+                                  				end
+
+
+                                  				if tbl.scid ~= scid then
+                                  					for cf_name,cf in pairs(tbl.features) do
+                                  						if cf.type == "toggle" and cf.feat.on then
+                                  							cf.feat.on = false
+                                  						end
+                                  					end
+                                  					tbl.scid = scid
+                                  					if not isYou then
+                                  						--TODO: Modder shit
+
+
+                                  					end
+
+                                  				end
+                                  			end
+                                  			if #tags > 0 then
+                                  				name = name .. " [" .. table.concat(tags) .. "]"
+                                  			end
+                                  			if f.name ~= name then f.name = name end
+                                  			for cf_name,cf in pairs(tbl.features) do
+                                  				if (cf.type ~= "toggle" or cf.feat.on) and cf.callback then
+                                  					local status, err = pcall(cf.callback)
+                                  					if not status then
+                                  						moist_notify("Error running feature " .. i .. " on pid " .. pid)
+                                  						print(err)
+                                  					end
+                                  				end
+                                  			end
+                                  		else
+                                  			if not f.hidden then
+                                  				f.hidden = true
+                                  				for cf_name,cf in pairs(tbl.features) do
+                                  					if cf.type == "toggle" and cf.feat.on then
+                                  						cf.feat.on = false
+                                  					end
+                                  				end
+                                  			end
+                                  		end
+                                  	end
+                                  	return HANDLER_CONTINUE
+                                  end
+                                  return HANDLER_POP
+                              end)
+
+>>>>>>> Stashed changes
 loopFeat.hidden = true
 loopFeat.threaded = false
 loopFeat.on = true
